@@ -1,4 +1,5 @@
 import copy
+import random
 
 import pyglet
 from pyglet import shapes
@@ -28,7 +29,7 @@ class System:
 class Kew(list):
     def append(self, item):
         list.append(self, item)
-        if len(self) > 5000:
+        if len(self) > 1000:
             self[:1] = []
 
 
@@ -70,11 +71,15 @@ class Planet:
         self.trail_y.append(self.y)
         self.x = self.eval_position(self.x + self.vx * delta_time, width)
         self.y = self.eval_position(self.y + self.vy * delta_time, height)
+        self.update_velocity()
 
     def update_velocity(self):
-        ax, ay = self.find_acceleration(self)
+        ax, ay = self.find_acceleration()
         self.vx = self.vx + ax
         self.vy = self.vy + ay
+
+    def find_acceleration(self):
+        return random.randrange(-2,2), random.randrange(-2,2)
 
     @staticmethod
     def eval_position(new_coord, dimension):
@@ -88,8 +93,11 @@ class Planet:
 window = pyglet.window.Window(height, width, resizable=True, vsync=True)
 planet1 = Planet(50, 50, 90, 5, 10, 10)
 planet2 = Planet(450, 450, 30, 10, 15, 20)
-
 planets = [planet1, planet2]
+
+for i in range(300):
+    planets.append(Planet(random.randrange(0,width),random.randrange(0,height),random.randrange(-150,150),random.randrange(-150,150),random.randrange(5,12),random.randrange(5,12)))
+
 
 
 class Tick:
@@ -103,20 +111,17 @@ class Tick:
         return self.tick
 
 
-tick = Tick()
 
 
 def update(_):
-    tick.increment_tick()
     window.clear()
 
-    planet1.update_position()
 
-    planet1.draw()
+    for planet in planets:
+        planet.update_position()
+        planet.draw()
 
-    if tick.get_tick() > 10:
-        planet2.draw()
-        planet2.update_position()
+
 
 
 # run the pyglet application
